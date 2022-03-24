@@ -41,7 +41,7 @@ The following transforms are applied to the training set:
 The test set is only normalized using the same values. 
 
 ### Example of Transformed Images
-<img src="/figures/transformed_images_example.png" width="600" height="300"/>
+<img src="/figures/transformed_images_example.png" width="1000" height="300"/>
 
 The table below summarizes training paramters
 
@@ -63,7 +63,6 @@ During training early stopping is implemented such that if the test loss begins 
 ### Accuracy Results By Class
 | Class | Accuracy |
 | :---:        |        :---: |
-
 |plane | 92.4 |
 |car   | 96.5 |
 |bird  | 89.3 |
