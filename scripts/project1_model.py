@@ -80,7 +80,7 @@ def count_parameters(model):
      return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def project1_model():
-    return ResNet(BasicBlock, [2, 2, 2, 1])
+    return ResNet(BasicBlock, [5, 2, 3, 1])
 
 if __name__ == "__main__":
     print(count_parameters(project1_model()))

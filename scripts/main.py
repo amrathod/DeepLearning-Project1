@@ -94,7 +94,7 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
     test_accuracy_list = []
     best_acc = 0.0
 
-    # The patience left variable is decremented by one every time the test loss of an epoch is lower
+    # The patience left variable is decremented by one every time the test loss of an epoch is higher 
     # than the best test loss. Once it reaches zero, training is stopped to avoid overfitting
     patience_left = 15 
     epoch = 1
@@ -110,7 +110,7 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
 
     if use_saved_model:
         print('Using Saved Model..')
-        saved_model = torch.load('./saved_model/resnet_adam_dropout.pth')
+        saved_model = torch.load('./saved_model/resnet_adam_dropout_4_9M.pth')
         net.load_state_dict(saved_model['net'])
         best_acc = saved_model['accuracy']
         best_loss = saved_model['loss']
@@ -145,7 +145,7 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
         }
         if not os.path.isdir('saved_model'):
             os.mkdir('saved_model')
-        torch.save(state, './saved_model/resnet_adam_dropout.pth')
+        torch.save(state, './saved_model/resnet_adam_dropout_4_9M.pth')
 
         print(f"Best Test Loss: {best_loss}")
         print(f"Best Test Accuracy: {best_acc}")
@@ -178,17 +178,17 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
     return train_loss_list, train_accuracy_list, test_loss_list, test_accuracy_list
 
 if __name__ == "__main__":
-    load_model = True
-    epochs_to_run = 1
-    generate_plots = True
+    load_model = False # Change to true to use saved model 
+    epochs_to_run = 50 # to test a saved model change to 1
+    generate_plots = False
     check_accuracy_by_class = True
     train_loss_list, train_accuracy_list, test_loss_list, test_accuracy_list = main(max_epochs=epochs_to_run, 
                                                                                 use_saved_model=load_model,
                                                                                 check_accuracy_by_class=check_accuracy_by_class)
 
     if generate_plots:
-        loss_figure_name = "loss_figure_1.png"
-        accuracy_figure_name = "accuracy_figure_1.png"
+        loss_figure_name = "loss.png"
+        accuracy_figure_name = "accuracy.png"
         plt.rcParams["figure.figsize"] = (19.20, 10.80)
         font = {"family" : "sans",
                 "weight" : "normal",
