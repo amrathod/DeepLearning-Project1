@@ -55,7 +55,7 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
     """
     max_epochs: maximum epochs to run if early stopping is not used
     used_saved_model: boolean to load saved model to evaluate or continue training
-    check_accuracy_by_class: boolean that triggers printing of accuracy results by class 
+    check_accuracy_by_class: boolean that triggers printing of accuracy results by class
     """
 
     transform_train = transforms.Compose([transforms.ToTensor(),
@@ -70,14 +70,14 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
                                         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
 
-    trainset = torchvision.datasets.CIFAR10(root='../CIFAR10/', train=True, 
+    trainset = torchvision.datasets.CIFAR10(root='../CIFAR10/', train=True,
                                         download=False, transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=100, 
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=100,
                                         shuffle=True, num_workers=4)
 
-    testset = torchvision.datasets.CIFAR10(root='../CIFAR10/', train=False, 
+    testset = torchvision.datasets.CIFAR10(root='../CIFAR10/', train=False,
                                             download=True, transform=transform_test)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=150, 
+    testloader = torch.utils.data.DataLoader(testset, batch_size=150,
                                             shuffle=False, num_workers=4)
 
     classes = ('plane', 'car', 'bird', 'cat', 'deer',
@@ -94,9 +94,9 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
     test_accuracy_list = []
     best_acc = 0.0
 
-    # The patience left variable is decremented by one every time the test loss of an epoch is higher 
+    # The patience left variable is decremented by one every time the test loss of an epoch is higher
     # than the best test loss. Once it reaches zero, training is stopped to avoid overfitting
-    patience_left = 15 
+    patience_left = 15
     epoch = 1
     best_loss = 5.0
 
@@ -104,23 +104,21 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
     optimizer = optim.Adam(net.parameters(), lr= 0.001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=max_epochs)
 
-    if device == 'cuda':
-        net = torch.nn.DataParallel(net)
-        cudnn.benchmark = True
+    #if device == 'cuda':
+        #net = torch.nn.DataParallel(net)
+        #cudnn.benchmark = True
 
     if use_saved_model:
         print('Using Saved Model..')
-        saved_model = torch.load('./saved_model/resnet_adam_dropout_4_9M.pth')
-        net.load_state_dict(saved_model['net'])
-        best_acc = saved_model['accuracy']
-        best_loss = saved_model['loss']
+        saved_model = torch.load('./project1_model.pt')
+        net.load_state_dict(saved_model)
 
-    while patience_left > 0 and epoch < max_epochs:    
+    while patience_left > 0 and epoch < max_epochs:
 
-        train_loss, train_acc = train(net=net, criterion=criterion, 
+        train_loss, train_acc = train(net=net, criterion=criterion,
                                     optimizer=optimizer, trainloader=trainloader, epoch=epoch)
         test_loss, test_acc = test(net=net, criterion=criterion, testloader=testloader, epoch=epoch)
-        
+
         train_accuracy_list.append(train_acc)
         train_loss_list.append(train_loss)
         test_accuracy_list.append(test_acc)
@@ -132,20 +130,12 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
             patience_left -= 1
             print("")
             print("\x1b[6;30;43m" + "Test Loss Increased" "\x1b[0m")
-        else: 
+        else:
             best_loss = test_loss
-        
+
         if best_acc < test_acc:
             best_acc = test_acc
-
-            state = {
-            'net': net.state_dict(),
-            'accuracy': best_acc,
-            'loss': best_loss,
-        }
-        if not os.path.isdir('saved_model'):
-            os.mkdir('saved_model')
-        torch.save(state, './saved_model/resnet_adam_dropout_4_9M.pth')
+            torch.save(state, './project1_model.pt')
 
         print(f"Best Test Loss: {best_loss}")
         print(f"Best Test Accuracy: {best_acc}")
@@ -173,16 +163,16 @@ def main(max_epochs, use_saved_model, check_accuracy_by_class):
         for classname, correct_count in correct_pred.items():
             accuracy = 100 * float(correct_count) / total_pred[classname]
             print(f'Accuracy for class: {classname:5s} is {accuracy:.1f} %')
-        print("")   
+        print("")
 
     return train_loss_list, train_accuracy_list, test_loss_list, test_accuracy_list
 
 if __name__ == "__main__":
-    load_model = False # Change to true to use saved model 
+    load_model = False # Change to true to use saved model
     epochs_to_run = 50 # to test a saved model change to 1
     generate_plots = False
     check_accuracy_by_class = True
-    train_loss_list, train_accuracy_list, test_loss_list, test_accuracy_list = main(max_epochs=epochs_to_run, 
+    train_loss_list, train_accuracy_list, test_loss_list, test_accuracy_list = main(max_epochs=epochs_to_run,
                                                                                 use_saved_model=load_model,
                                                                                 check_accuracy_by_class=check_accuracy_by_class)
 
@@ -215,6 +205,3 @@ if __name__ == "__main__":
         plt.legend()
         plt.savefig("./figures/" + accuracy_figure_name)
         plt.close()
-
-    
-        
